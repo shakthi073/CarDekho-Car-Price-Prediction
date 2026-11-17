@@ -1,0 +1,60 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>CarDekho | Used Car Price Estimator</title>
+  <style>
+    :root { color-scheme: light; --ink:#182230; --muted:#667085; --line:#e4e7ec; --brand:#176b52; }
+    * { box-sizing:border-box; }
+    body { margin:0; padding:32px 16px; font:15px/1.5 system-ui,-apple-system,Segoe UI,sans-serif; background:#f3f6f5; color:var(--ink); }
+    main { max-width:760px; margin:auto; background:white; border:1px solid var(--line); border-radius:18px; box-shadow:0 12px 35px #10182812; overflow:hidden; }
+    header { padding:28px 32px; background:linear-gradient(120deg,#124b3d,#208366); color:white; }
+    header h1 { margin:0 0 6px; font-size:clamp(23px,4vw,31px); }
+    header p { margin:0; color:#e2f3ed; }
+    form { padding:28px 32px 32px; }
+    .grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:18px 20px; }
+    label { display:block; margin-bottom:6px; font-weight:650; font-size:14px; }
+    input,select { width:100%; min-height:44px; border:1px solid #cfd7d3; border-radius:8px; padding:9px 11px; font:inherit; background:white; }
+    input:focus,select:focus { outline:3px solid #176b5222; border-color:var(--brand); }
+    button { width:100%; margin-top:24px; padding:13px 18px; border:0; border-radius:9px; background:var(--brand); color:white; font-weight:700; font-size:16px; cursor:pointer; }
+    button:hover { background:#10533f; }
+    .result,.error { margin:0 32px 28px; padding:16px 18px; border-radius:10px; font-weight:700; }
+    .result { background:#e9f7ef; color:#155d3c; border:1px solid #b8e3c8; font-size:19px; }
+    .error { background:#fff1f0; color:#a12a22; border:1px solid #ffd0cc; }
+    footer { padding:0 32px 24px; color:var(--muted); font-size:12px; }
+    @media(max-width:600px) { body{padding:14px 10px} header,form{padding:22px 19px} .grid{grid-template-columns:1fr;gap:13px} .result,.error{margin:0 19px 20px} footer{padding:0 19px 20px} }
+  </style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Used Car Price Estimator</h1>
+    <p>Enter the vehicle specifications to estimate its selling price.</p>
+  </header>
+  <form action="/predict" method="post">
+    <div class="grid">
+      <div><label for="vehicle_age">Vehicle age (years)</label><input type="number" min="0" max="50" step="any" id="vehicle_age" name="vehicle_age" value="{{ form_data.vehicle_age if form_data else '' }}" required></div>
+      <div><label for="km_driven">Kilometres driven (km)</label><input type="number" min="0" max="2000000" step="any" id="km_driven" name="km_driven" value="{{ form_data.km_driven if form_data else '' }}" required></div>
+      <div><label for="mileage">Mileage (km/l)</label><input type="number" min="0" max="100" step="any" id="mileage" name="mileage" value="{{ form_data.mileage if form_data else '' }}" required></div>
+      <div><label for="engine">Engine capacity (cc)</label><input type="number" min="0" max="10000" step="any" id="engine" name="engine" value="{{ form_data.engine if form_data else '' }}" required></div>
+      <div><label for="max_power">Maximum power (bhp)</label><input type="number" min="0" max="2000" step="any" id="max_power" name="max_power" value="{{ form_data.max_power if form_data else '' }}" required></div>
+      <div><label for="seats">Number of seats</label><input type="number" min="1" max="20" step="1" id="seats" name="seats" value="{{ form_data.seats if form_data else '5' }}" required></div>
+      <div><label for="seller_type">Seller type</label><select id="seller_type" name="seller_type">
+        {% for v in ['Dealer','Individual','Trustmark Dealer'] %}<option value="{{ v }}" {% if form_data and form_data.seller_type == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+      </select></div>
+      <div><label for="fuel_type">Fuel type</label><select id="fuel_type" name="fuel_type">
+        {% for v in ['CNG','Diesel','Electric','LPG','Petrol'] %}<option value="{{ v }}" {% if form_data and form_data.fuel_type == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+      </select></div>
+      <div><label for="transmission_type">Transmission</label><select id="transmission_type" name="transmission_type">
+        {% for v in ['Automatic','Manual'] %}<option value="{{ v }}" {% if form_data and form_data.transmission_type == v %}selected{% endif %}>{{ v }}</option>{% endfor %}
+      </select></div>
+    </div>
+    <button type="submit">Predict selling price</button>
+  </form>
+  {% if prediction_text %}<div class="result" role="status">{{ prediction_text }}</div>{% endif %}
+  {% if error_text %}<div class="error" role="alert">{{ error_text }}</div>{% endif %}
+  <footer>Academic machine-learning demonstration. The estimate is not a guaranteed market quote.</footer>
+</main>
+</body>
+</html>
